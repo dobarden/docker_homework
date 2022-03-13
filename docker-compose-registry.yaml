@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+
+  frontend:
+    container_name: frontend
+    image: localhost:5000/my_frontend:0.1
+    ports:
+      - 80:80
+    networks:
+      - front
+    restart:
+      unless-stopped
+       
+  backend:
+    container_name: backend
+    image: localhost:5000/my_django:0.1
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+    networks:
+      - back
+    restart:
+      unless-stopped
+
+  database:
+    container_name: database
+    image: localhost:5000/my_database:0.1
+    ports:
+      - 5432:5432
+    networks:
+      - back
+    restart:
+      unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+networks:
+  front:
+    driver: bridge
+  back:
+    driver: bridge
